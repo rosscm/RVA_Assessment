@@ -7,9 +7,11 @@ library(ggplot2)
 library(pharmaverseadam)
 
 # Load data
+message("Loading data...")
 data("adae", package = "pharmaverseadam")
 
 # Filter for Treatment-Emergent Adverse Events
+message("Processing TEAE data for severity visualization...")
 adae_teae <- adae %>% 
     filter(TRTEMFL == "Y") %>%
     select(USUBJID, AESOC, AESEV) %>%
@@ -28,6 +30,7 @@ ae_summary <- adae_teae %>%
 ae_summary$AESEV <- factor(ae_summary$AESEV, levels = c("MILD", "MODERATE", "SEVERE"))
 
 # Create the bar chart
+message("Plotting AE severity distribution...")
 ae_plot <- ggplot(ae_summary, aes(x = SubjectCount, y = reorder(AESOC, TotalSubjects), fill = AESEV)) +
     geom_bar(stat = "identity", position = position_stack(reverse = TRUE)) +
     labs(title = "Unique Subjects per SOC and Severity Level",
@@ -40,5 +43,7 @@ ae_plot <- ggplot(ae_summary, aes(x = SubjectCount, y = reorder(AESOC, TotalSubj
           text = element_text(family = "system-ui", size = 14))
 
 # Save the plot as a PNG file
+message("Saving the plot...")
 out_file <- file.path("question_2", "AE_Severity_Distribution.png")
 ggsave(out_file, plot = ae_plot, width = 14, height = 6, dpi = 300)
+message("Plot saved to '", out_file, "'")

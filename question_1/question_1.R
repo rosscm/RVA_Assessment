@@ -8,11 +8,13 @@ library(pharmaverseadam)
 library(gt)
 
 # Load data
+message("Loading data...")
 data("adae", package = "pharmaverseadam")
 data("adsl", package = "pharmaverseadam")
 
 # Filter for Treatment-Emergent Adverse Events
-adae_teae <- adae %>% 
+message("Processing TEAE data...")
+adae_teae <- adae %>%
     filter(TRTEMFL == "Y") %>%
     select(USUBJID, ACTARM, AESOC, AEDECOD)
 
@@ -84,18 +86,21 @@ wide_teae <- wide_teae %>%
     filter(ACTARM %in% active_arms) # Keep only arms with TEAEs
 
 # Generate gtsummary table
+message("Generating gtsummary table...")
 teae_table <- wide_teae %>%
     tbl_summary(
         by = ACTARM,
         missing = "no"
     ) %>%
     modify_header(label = "**System Organ Class / Preferred Term**") %>%
-    bold_labels()
+    bold_labels() %>%
+    as_gt()
 
 # Save the table as HTML
+message("Saving table as HTML...")
 dir.create("docs", showWarnings = FALSE)
-
-gt_table <- teae_table %>% as_gt()
-
-gtsave(gt_table, "question_1/TEAE_Summary.html")
-gtsave(gt_table, "docs/TEAE_Summary.html")
+out_file1 <- "question_1/TEAE_Summary.html"
+out_file2 <- "docs/TEAE_Summary.html"
+gtsave(teae_table, out_file1)
+gtsave(teae_table, out_file2)
+message("TEAE summary table saved to '", out_file1, "' and '", out_file2, "'")
